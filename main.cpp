@@ -152,8 +152,8 @@ void parseCommandLine(const int argc, char * const argv[])
                   randomEdgePercent = atof(optarg);
                   break;
               case 'h':
-                  std::cout << "Sample usage [1] (use real-world file): ./matching_omp [-f /path/to/binary/file.bin] (see README)" << std::endl;
-                  std::cout << "Sample usage [2] (use synthetic graph): ./matching_omp [-n <#vertices>] [-l] [-p <\% extra edges>]" << std::endl;
+                  std::cout << "Sample usage [1] (use real-world file): ./louvain_omp [-f /path/to/binary/file.bin] (see README)" << std::endl;
+                  std::cout << "Sample usage [2] (use synthetic graph): ./louvain_omp [-n <#vertices>] [-l] [-p <% extra edges>]" << std::endl;
                   help_text = true;
                   break;
               default:
