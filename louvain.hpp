@@ -274,9 +274,9 @@ GraphWeight computeModularity(const Graph &g, Comm *localCinfo,
   const GraphElem nv = g.get_nv();
   GraphWeight le_xx = 0.0, la2_x = 0.0;
 
+	//map(to: clusterWeight[0:nv], localCinfo[0:nv]) 
 #if defined(USE_OMP_OFFLOAD)
 #pragma omp target teams distribute parallel for \
-	map(to: clusterWeight[0:nv], localCinfo[0:nv]) \
 	reduction(+: le_xx), reduction(+: la2_x)
 #elif defined(OMP_SCHEDULE_RUNTIME)
 #pragma omp parallel for shared(clusterWeight, localCinfo), \
@@ -302,9 +302,7 @@ GraphWeight computeModularity(const Graph &g, Comm *localCinfo,
 void updateLocalCinfo(const GraphElem nv, Comm *localCinfo, const Comm *localCupdate)
 {
 #if defined(USE_OMP_OFFLOAD)
-#pragma omp target teams distribute parallel for \
-	map(to: localCupdate [0:nv])    \
-    	map(tofrom: localCinfo [0:nv])
+#pragma omp target teams distribute parallel for 
 #elif defined(OMP_SCHEDULE_RUNTIME)
 #pragma omp for schedule(runtime)
 #else
@@ -320,8 +318,7 @@ void cleanCWandCU(const GraphElem nv, GraphWeight *clusterWeight,
         Comm *localCupdate)
 {
 #if defined(USE_OMP_OFFLOAD)
-#pragma omp target teams distribute parallel for \
-	map(from: clusterWeight[0:nv], localCupdate[0:nv])
+#pragma omp target teams distribute parallel for 
 #elif defined(OMP_SCHEDULE_RUNTIME)
 #pragma omp for schedule(runtime)
 #else
@@ -372,6 +369,11 @@ GraphWeight louvainMethod(const Graph &g, const GraphWeight lower, const GraphWe
   GraphWeight *d_clusterWeight = &clusterWeight[0];
 
   double t_start = omp_get_wtime();
+#if defined(USE_OMP_OFFLOAD)
+#pragma omp target enter data map(to: d_clusterWeight[0:nv], d_localCupdate[0:nv])
+#pragma omp target enter data map(to: d_edge_indices[0:nv+1], d_edge_list[0:ne], d_vDegree[0:nv], d_localCinfo[0:nv])
+//#pragma omp target enter data map(to: d_targetComm[0:nv])
+#endif
 
   // start Louvain iteration
   while(true) {
@@ -393,10 +395,9 @@ GraphWeight louvainMethod(const Graph &g, const GraphWeight lower, const GraphWe
       time_start[2] = omp_get_wtime();
 #if defined(USE_OMP_OFFLOAD)
 #pragma omp target teams distribute parallel for \
-	map(to: d_edge_indices [0:nv+1], d_edge_list [0:ne], d_currComm [0:nv], d_vDegree [0:nv], d_localCinfo [0:nv])\
-    	map(from: d_targetComm [0:nv])\
-    	map(tofrom: d_localCupdate [0:nv], d_clusterWeight [0:nv])\
-	thread_limit(TEAM_SIZE)
+	map(to: d_currComm [0:nv]) \
+    	map(from: d_targetComm [0:nv])
+	//thread_limit(TEAM_SIZE)
 #elif defined(OMP_SCHEDULE_RUNTIME)
 #pragma omp for schedule(runtime)
 #else
