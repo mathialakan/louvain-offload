@@ -28,7 +28,7 @@ static void parseCommandLine(const int argc, char * const argv[]);
 
 int main(int argc, char *argv[])
 {
-    double t0, t1, td, td0, td1, tot_time;
+    double t1, td, td0, td1, tot_time;
     int max_threads, req_threads;
     
     max_threads = omp_get_max_threads();
@@ -82,8 +82,6 @@ int main(int argc, char *argv[])
 #endif
    
   GraphWeight currMod = -1.0;
-  GraphWeight prevMod = -1.0;
-  double total = 0.0;
 
   int iters = 0;
     

@@ -17,7 +17,7 @@ SAVE_TEMP = 0
 
 OBJ = main.o
 SRC = main.cpp
-TARGET = louvain_omp
+TARGET = louvain_omp_$(COMPILER)
 
 #===============================================================================
 # Sets Flags
@@ -46,7 +46,7 @@ endif
 # LLVM Clang Compiler 
 ifeq ($(COMPILER),llvm_nv)
   CC = clang++
-  CFLAGS += -fopenmp -fopenmp-targets=nvptx64-nvidia-cuda -Xopenmp-target --cuda-path=${OLCF_CUDA_ROOT}    
+  CFLAGS += -fopenmp -fopenmp-targets=nvptx64-nvidia-cuda  -fopenmp-cuda-mode 
   #CFLAGS += -fopenmp -fopenmp-targets=nvptx64-nvidia-cuda -Xopenmp-target --cuda-path=${OLCF_CUDA_ROOT}    -fopenmp-new-driver -foffload-lto 
   #CFLAGS += -fopenmp -fopenmp-targets=nvptx64-nvidia-cuda -Xopenmp-target --cuda-path=${OLCF_CUDA_ROOT}  -Xcuda-ptxas --maxrregcount=120 -fopenmp-new-driver -foffload-lto -fopenmp-assume-no-thread-state
   #CFLAGS += -fopenmp -fopenmp-targets=nvptx64-nvidia-cuda -Xopenmp-target --cuda-path=${OLCF_CUDA_ROOT}  -Xcuda-ptxas --maxrregcount=120
@@ -100,6 +100,8 @@ ifeq ($(SAVE_TEMPS),1)
 CFLAGS += -save-temps
 endif
 
+TS=32
+
 # Team size
 ifeq ($(TS), 16)
   OPTFLAGS += -DTS16
@@ -116,6 +118,8 @@ else ifeq ($(TS), 512)
 else
   OPTFLAGS += -DTS32
 endif
+
+TARGET := $(TARGET)_$(TS)
 
 #===============================================================================
 # Targets to Build

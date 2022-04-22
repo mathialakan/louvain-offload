@@ -138,7 +138,7 @@ class LCG
 {
     public:
         LCG(unsigned seed, GraphWeight* drand, GraphElem n) : 
-        seed_(seed), drand_(drand), n_(n)
+        seed_(seed), n_(n), drand_(drand)
         {
             // allocate long random numbers
             rnums_.resize(n_);
